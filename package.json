@@ -1,5 +1,5 @@
 {
-  "name": "dodai",
+  "name": "@potato4d/dodai",
   "version": "0.1.0",
   "description": "static website generator",
   "main": "index.js",
