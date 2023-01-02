@@ -1,0 +1,49 @@
+{
+  "name": "dodai",
+  "version": "0.1.0",
+  "description": "static website generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test",
+    "build": "tsc;chmod +x ./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/potato4d/dodai.git"
+  },
+  "keywords": [
+    "static",
+    "ssg",
+    "build",
+    "static-site-generator"
+  ],
+  "bin": {
+    "dodai": "./bin/index.js"
+  },
+  "author": "potato4d (Takuma HANATANI)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/potato4d/dodai/issues"
+  },
+  "homepage": "https://github.com/potato4d/dodai#readme",
+  "dependencies": {
+    "commander": "^9.4.1",
+    "dayjs": "^1.11.7",
+    "express": "^4.18.2",
+    "glob": "^8.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.2.4"
+  },
+  "devDependencies": {
+    "@types/consola": "^2.2.5",
+    "@types/express": "^4.17.15",
+    "@types/glob": "^8.0.0",
+    "@types/node": "^18.11.18",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "consola": "^2.15.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}
