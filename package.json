@@ -1,6 +1,6 @@
 {
   "name": "@potato4d/dodai",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "static website generator",
   "main": "index.js",
   "scripts": {
