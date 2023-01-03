@@ -1,12 +1,14 @@
-import * as fs from 'fs/promises'
-import { exec } from 'child_process'
+import * as fs from 'fs/promises';
+import { exec } from 'child_process';
 import { promisify } from 'util';
+const consola = require('consola');
+
 const execPromise = promisify(exec);
 
 type Template = {
   path: string;
   body: string;
-}
+};
 
 const templates: Template[] = [
   {
@@ -47,7 +49,7 @@ export const Layout: React.FC<LayoutProps> = ({ head, children }) => {
       </body>
     </html>
   )
-}`
+}`,
   },
   {
     path: 'src/pages/index.tsx',
@@ -67,11 +69,11 @@ export const Page: React.FC = () => {
       index page
     </div>
   )
-}`
+}`,
   },
   {
     path: 'src/data/items/[item].tsx',
-    body: `export const data = [{ url: '/items/1', data: { name: 'item 1' } }, { url: '/items/2', data: { name: 'item 2' } }]`
+    body: `export const data = [{ url: '/items/1', data: { name: 'item 1' } }, { url: '/items/2', data: { name: 'item 2' } }]`,
   },
   {
     path: 'src/pages/items/[item].tsx',
@@ -98,7 +100,7 @@ export const Page: React.FC<Item> = ({ url, data }) => {
       <h2>{data.name} page</h2>
     </div>
   )
-}`
+}`,
   },
   {
     path: 'tsconfig.json',
@@ -119,7 +121,7 @@ export const Page: React.FC<Item> = ({ url, data }) => {
     "strict": true,
     "skipLibCheck": true
   }
-}`
+}`,
   },
   {
     path: 'src/static/robots.txt',
@@ -129,20 +131,29 @@ export const Page: React.FC<Item> = ({ url, data }) => {
     path: '.gitignore',
     body: `node_modules
 dist
-.dodai-build`
-  }
-]
+.dodai-build`,
+  },
+];
 export async function init() {
-  const cwd = process.cwd()
-  console.log('generate template files...')
-  await Promise.all(templates.map(async (template) => {
-    const dir = template.path.split('/').filter((_, i, all) => i !== all.length - 1).join('/')
-    if (dir.includes('/')) {
-      await fs.mkdir(dir, { recursive: true })
-    }
-    await fs.appendFile(`${cwd}/${template.path}`, template.body, { encoding: 'utf-8' })
-  }))
-  console.log('install packages...')
-  await execPromise('npm i -D typescript ts-node @types/node react @types/react react-dom')
-  console.log('initialize typescript project...')
+  const cwd = process.cwd();
+  consola.log('generate template files...');
+  await Promise.all(
+    templates.map(async (template) => {
+      const dir = template.path
+        .split('/')
+        .filter((_, i, all) => i !== all.length - 1)
+        .join('/');
+      if (dir.includes('/')) {
+        await fs.mkdir(dir, { recursive: true });
+      }
+      await fs.appendFile(`${cwd}/${template.path}`, template.body, {
+        encoding: 'utf-8',
+      });
+    }),
+  );
+  consola.log('install packages...');
+  await execPromise(
+    'npm i -D typescript ts-node @types/node react @types/react react-dom',
+  );
+  consola.log('initialize typescript project...');
 }

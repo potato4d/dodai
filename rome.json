@@ -1,0 +1,14 @@
+{
+  "linter": {
+    "enabled": false
+  },
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "javascript": {
+    "globals": [],
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  }
+}
