@@ -1,6 +1,6 @@
 {
   "name": "@potato4d/dodai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "static website generator",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "static-site-generator"
   ],
   "bin": {
-    "dodai": "./bin/index.js"
+    "dodai": "./dist/index.js"
   },
   "author": "potato4d (Takuma HANATANI)",
   "license": "MIT",
