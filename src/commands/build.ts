@@ -111,9 +111,9 @@ export async function build(isDevServer?: boolean) {
                   {
                     head: Head
                       ? React.createElement(Head, {
-                        url: single.url,
-                        data: single.data,
-                      })
+                          url: single.url,
+                          data: single.data,
+                        })
                       : null,
                   },
                   React.createElement(Page, {
@@ -122,9 +122,12 @@ export async function build(isDevServer?: boolean) {
                   }),
                 ),
               );
-            await fs.mkdir(path.dirname(`${cwd}/dist${single.url}/index.html`), {
-              recursive: true,
-            });
+            await fs.mkdir(
+              path.dirname(`${cwd}/dist${single.url}/index.html`),
+              {
+                recursive: true,
+              },
+            );
             await fs.writeFile(`${cwd}/dist${single.url}/index.html`, html, {
               encoding: 'utf-8',
             });
@@ -132,7 +135,7 @@ export async function build(isDevServer?: boolean) {
           }),
         );
       } catch (e) {
-        consola.error(e)
+        consola.error(e);
       }
     }),
   ).catch((err) => {
