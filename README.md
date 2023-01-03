@@ -43,12 +43,6 @@ export const Layout: React.FC<LayoutProps> = ({ head, children }) => {
 ```tsx
 
 import React from 'react'
-import { data } from '../data/entry/[single]'
-import dayjs from 'dayjs';
-
-function toHumanReadableDate(v: string) {
-  return dayjs(v).format('YYYY/MM/DD')
-}
 
 export const Head: React.FC = () => {
   return (
@@ -72,8 +66,6 @@ export const Page: React.FC = () => {
 ```tsx
 // src/pages/entry/[single].tsx
 import React from 'react'
-import { data } from '../data/entry/[single]'
-import dayjs from 'dayjs';
 
 type EntryProps = {
   url: string;
@@ -82,10 +74,6 @@ type EntryProps = {
     date: string;
     body: string;
   }
-}
-
-function toHumanReadableDate(v: string) {
-  return dayjs(v).format('YYYY/MM/DD')
 }
 
 export const Head: React.FC<EntryProps> = ({ url, data }) => {
