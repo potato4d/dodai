@@ -11,13 +11,22 @@ const consola = require('consola');
 
 const htmlHeader = `<!DOCTYPE html>\n`;
 
+// どこかで治す
 const ce = console.error;
+const cl = console.log;
 
 console.error = (v) => {
   if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
     return;
   }
   ce(v);
+};
+
+console.log = (v) => {
+  if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
+    return;
+  }
+  cl(v);
 };
 
 export async function build(isDevServer?: boolean) {
