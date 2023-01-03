@@ -14,6 +14,7 @@ const htmlHeader = `<!DOCTYPE html>\n`;
 // どこかで治す
 const ce = console.error;
 const cl = console.log;
+const cw = console.warn;
 
 console.error = (v) => {
   if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
@@ -27,6 +28,12 @@ console.log = (v) => {
     return;
   }
   cl(v);
+};
+console.warn = (v) => {
+  if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
+    return;
+  }
+  cw(v);
 };
 
 export async function build(isDevServer?: boolean) {
@@ -45,84 +52,88 @@ export async function build(isDevServer?: boolean) {
   const pathes = await glob(`${rootDir}/pages/**/*.js`);
   await Promise.all(
     pathes.map(async (pagePath) => {
-      Object.entries(require.cache)
-        .filter(([k]) => {
-          return k.includes(cwd);
-        })
-        .map(([k]) => {
-          if (require.cache[require.resolve(k)]) {
-            delete require.cache[require.resolve(k)];
-          }
-        });
-      const Layout = require(`${rootDir}/layouts/default`).Layout;
+      try {
+        Object.entries(require.cache)
+          .filter(([k]) => {
+            return k.includes(cwd);
+          })
+          .map(([k]) => {
+            if (require.cache[require.resolve(k)]) {
+              delete require.cache[require.resolve(k)];
+            }
+          });
+        const Layout = require(`${rootDir}/layouts/default`).Layout;
 
-      if (!pagePath.includes('[')) {
-        const { Head, Page } = require(pagePath);
-        const html =
-          htmlHeader +
-          Renderer.renderToString(
-            React.createElement(
-              Layout,
-              { head: Head ? React.createElement(Head, null) : null },
-              React.createElement(Page, null),
-            ),
-          );
-        await fs.mkdir(
-          path.dirname(
-            `${cwd}/dist/${pagePath
-              .replace(`${rootDir}/pages/`, '')
-              .replace('.js', '.html')}`,
-          ),
-          { recursive: true },
-        );
-        await fs.writeFile(
-          `${cwd}/dist/${pagePath
-            .replace(`${rootDir}/pages/`, '')
-            .replace('.js', '.html')}`,
-          html,
-          { encoding: 'utf-8' },
-        );
-        return html;
-      }
-
-      // `pages/detail/[area]/[slug]` 形式
-      const userPath = pagePath.split('pages/')[1];
-      const metaDataPath = `${rootDir}/data/${userPath}`;
-      if (require.cache[require.resolve(metaDataPath)]) {
-        delete require.cache[require.resolve(metaDataPath)];
-      }
-      const metaData: any[] = require(metaDataPath).data;
-      await Promise.all(
-        metaData.map(async (single) => {
+        if (!pagePath.includes('[')) {
           const { Head, Page } = require(pagePath);
           const html =
             htmlHeader +
-            Renderer.renderToStaticMarkup(
+            Renderer.renderToString(
               React.createElement(
                 Layout,
-                {
-                  head: Head
-                    ? React.createElement(Head, {
+                { head: Head ? React.createElement(Head, null) : null },
+                React.createElement(Page, null),
+              ),
+            );
+          await fs.mkdir(
+            path.dirname(
+              `${cwd}/dist/${pagePath
+                .replace(`${rootDir}/pages/`, '')
+                .replace('.js', '.html')}`,
+            ),
+            { recursive: true },
+          );
+          await fs.writeFile(
+            `${cwd}/dist/${pagePath
+              .replace(`${rootDir}/pages/`, '')
+              .replace('.js', '.html')}`,
+            html,
+            { encoding: 'utf-8' },
+          );
+          return html;
+        }
+
+        // `pages/detail/[area]/[slug]` 形式
+        const userPath = pagePath.split('pages/')[1];
+        const metaDataPath = `${rootDir}/data/${userPath}`;
+        if (require.cache[require.resolve(metaDataPath)]) {
+          delete require.cache[require.resolve(metaDataPath)];
+        }
+        const metaData: any[] = require(metaDataPath).data;
+        await Promise.all(
+          metaData.map(async (single) => {
+            const { Head, Page } = require(pagePath);
+            const html =
+              htmlHeader +
+              Renderer.renderToStaticMarkup(
+                React.createElement(
+                  Layout,
+                  {
+                    head: Head
+                      ? React.createElement(Head, {
                         url: single.url,
                         data: single.data,
                       })
-                    : null,
-                },
-                React.createElement(Page, {
-                  url: single.url,
-                  data: single.data,
-                }),
-              ),
-            );
-          await fs.mkdir(path.dirname(`${cwd}/dist${single.url}/index.html`), {
-            recursive: true,
-          });
-          await fs.writeFile(`${cwd}/dist${single.url}/index.html`, html, {
-            encoding: 'utf-8',
-          });
-          return;
-        }),
-      );
+                      : null,
+                  },
+                  React.createElement(Page, {
+                    url: single.url,
+                    data: single.data,
+                  }),
+                ),
+              );
+            await fs.mkdir(path.dirname(`${cwd}/dist${single.url}/index.html`), {
+              recursive: true,
+            });
+            await fs.writeFile(`${cwd}/dist${single.url}/index.html`, html, {
+              encoding: 'utf-8',
+            });
+            return;
+          }),
+        );
+      } catch (e) {
+        consola.error(e)
+      }
     }),
   ).catch((err) => {
     consola.error(err);
