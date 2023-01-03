@@ -9,6 +9,12 @@ $ npm i -S @potato4d/dodai
 $ dodai init
 ```
 
+## Quick Start
+
+```bash
+$ dodai init
+```
+
 ## How to Use
 
 ### Layout

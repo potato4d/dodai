@@ -10,6 +10,16 @@ import * as fsx from 'fs-extra'
 
 const htmlHeader = `<!DOCTYPE html>\n`
 
+const ce = console.error;
+
+console.error =
+  (v) => {
+    if (v.includes('reactjs.org')) {
+      return;
+    }
+    ce(v);
+  };
+
 export async function build(isDevServer?: boolean) {
   const cwd = process.cwd()
   const rootDir = `${cwd}/.dodai-build`;
@@ -31,7 +41,6 @@ export async function build(isDevServer?: boolean) {
       }).map(([k]) => {
         if (require.cache[require.resolve(k)]) {
           delete require.cache[require.resolve(k)];
-          console.debug(`clear cache: ${k}`);
         }
       })
       const Layout = require(`${rootDir}/layouts/default`).Layout
@@ -66,7 +75,6 @@ export async function build(isDevServer?: boolean) {
       const metaDataPath = `${rootDir}/data/${userPath}`;
       if (require.cache[require.resolve(metaDataPath)]) {
         delete require.cache[require.resolve(metaDataPath)];
-        console.debug(`clear cache: ${require.resolve(metaDataPath)}`);
       }
       const metaData: any[] = require(metaDataPath).data;
       await Promise.all(
