@@ -1,6 +1,6 @@
 {
   "name": "@potato4d/dodai",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "static website generator",
   "main": "index.js",
   "scripts": {
@@ -17,16 +17,6 @@
     "build",
     "static-site-generator"
   ],
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    },
-    "./hotreload": {
-      "import": "./dist/hotreload.js",
-      "require": "./dist/hotreload.js"
-    }
-  },
   "bin": {
     "dodai": "./dist/index.js"
   },

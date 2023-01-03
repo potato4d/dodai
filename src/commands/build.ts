@@ -14,7 +14,7 @@ const htmlHeader = `<!DOCTYPE html>\n`;
 const ce = console.error;
 
 console.error = (v) => {
-  if (v.includes('reactjs.org')) {
+  if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
     return;
   }
   ce(v);
