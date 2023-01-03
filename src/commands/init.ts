@@ -124,6 +124,12 @@ export const Page: React.FC<Item> = ({ url, data }) => {
   {
     path: 'src/static/robots.txt',
     body: '',
+  },
+  {
+    path: '.gitignore',
+    body: `node_modules
+dist
+.dodai-build`
   }
 ]
 export async function init() {
