@@ -129,16 +129,46 @@ export const data: Entry[] = [
 ]
 ```
 
-### Build
+## Build
 
 ```bash
-$ dodai build
+$ env NODE_ENV='production' dodai build
 ```
 
-### Dev Server
+## Dev Server
 
 ```bash
 $ dodai dev
+```
+
+## Components
+
+### HotReload
+
+- props: `{ dev?: boolean }`
+  - dev: default `process.env.NODE_ENV !== 'production'`
+
+```tsx
+import * as React from 'react';
+import { HotReload } from '@potato4d/dodai/dist/hotreload';
+
+type LayoutProps = { head: JSX.Element | null; children?: React.ReactNode };
+
+export const Layout: React.FC<LayoutProps> = ({ head, children }) => {
+  return (
+    <html lang="ja">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {head}
+        <HotReload />
+      </head>
+      <body>
+        {children}
+      </body>
+    </html>
+  )
+}
 ```
 
 ## LICENCE
