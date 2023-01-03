@@ -17,6 +17,16 @@
     "build",
     "static-site-generator"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./hotreload": {
+      "import": "./dist/hotreload.js",
+      "require": "./dist/hotreload.js"
+    }
+  },
   "bin": {
     "dodai": "./dist/index.js"
   },
