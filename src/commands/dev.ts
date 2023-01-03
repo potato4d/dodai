@@ -31,18 +31,22 @@ export async function dev() {
   consola.info('Preview Server: http://localhost:3000');
   consola.info('Polling Server: http://localhost:10020');
   chokidar.watch(['./src']).on('all', async (event, filepath) => {
-    if (event === 'add' || event === 'addDir') {
-      return;
-    }
-    if (filepath.includes('.')) {
-      const rp = `${cwd}/${filepath}`;
-      if (require.cache[require.resolve(rp)]) {
-        delete require.cache[require.resolve(rp)];
-        consola.debug(`clear cache: ${require.resolve(rp)}`);
+    try {
+      if (event === 'add' || event === 'addDir') {
+        return;
       }
+      if (filepath.includes('.')) {
+        const rp = `${cwd}/${filepath}`;
+        if (require.cache[require.resolve(rp)]) {
+          delete require.cache[require.resolve(rp)];
+          consola.debug(`clear cache: ${require.resolve(rp)}`);
+        }
+      }
+      consola.info(`Update ${dayjs().format()}`);
+      await build();
+    } catch(e) {
+      consola.error(e);
     }
-    consola.info(`Update ${dayjs().format()}`);
-    await build();
     clients.forEach((client) => {
       client.end();
     });
