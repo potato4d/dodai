@@ -6,17 +6,14 @@ import * as _glob from 'glob';
 import { promisify } from 'util';
 const glob = promisify(_glob);
 import * as ts from 'typescript'
+import * as fsx from 'fs-extra'
 
 const htmlHeader = `<!DOCTYPE html>\n`
 
-export async function build() {
+export async function build(isDevServer?: boolean) {
   const cwd = process.cwd()
   const rootDir = `${cwd}/.dodai-build`;
-  // await fs.copyFile(`${cwd}/styles/common.css`, `${cwd}/dist/common.css`);
-  console.log(
-    `${cwd}/src/**/*.tsx`,
-    await glob(`${cwd}/src/**/*.tsx`)
-  )
+  fsx.copySync(`${cwd}/src/static/`, `${cwd}/dist/static/`);
   const p = await ts.createProgram(await glob(`${cwd}/src/**/*.tsx`), {
     "target": 3,
     "jsx": 2,
@@ -29,10 +26,14 @@ export async function build() {
   const pathes = await glob(`${rootDir}/pages/**/*.js`);
   await Promise.all(
     pathes.map(async (pagePath) => {
-      if (require.cache[require.resolve(pagePath)]) {
-        delete require.cache[require.resolve(pagePath)];
-        console.debug(`clear cache: ${require.resolve(pagePath)}`);
-      }
+      Object.entries(require.cache).filter(([k]) => {
+        return k.includes(cwd)
+      }).map(([k]) => {
+        if (require.cache[require.resolve(k)]) {
+          delete require.cache[require.resolve(k)];
+          console.debug(`clear cache: ${k}`);
+        }
+      })
       const Layout = require(`${rootDir}/layouts/default`).Layout
 
       if (!pagePath.includes('[')) {
@@ -87,6 +88,6 @@ export async function build() {
         }),
       );
     }),
-  );
+  )
 
 }
