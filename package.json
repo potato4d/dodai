@@ -28,6 +28,7 @@
   "homepage": "https://github.com/potato4d/dodai#readme",
   "dependencies": {
     "@types/consola": "^2.2.5",
+    "chokidar": "^3.5.3",
     "commander": "^9.4.1",
     "consola": "^2.15.3",
     "dayjs": "^1.11.7",
