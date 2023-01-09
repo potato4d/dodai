@@ -3,12 +3,18 @@ import * as chokidar from 'chokidar';
 import * as dayjs from 'dayjs';
 import { build } from './build';
 import * as express from 'express';
+import { getPort, isSafePort } from 'get-port-please';
 const consola = require('consola');
 
 let clients: http.ServerResponse[] = [];
 
+const PORT = (process.env.PORT && isSafePort(~~(process.env.PORT))) ? ~~(process.env.PORT) : 3000;
+
 export async function dev() {
   const cwd = process.cwd();
+  const port = await getPort({
+    port: PORT
+  })
 
   const app = express();
 
@@ -23,12 +29,12 @@ export async function dev() {
     .listen(10020);
 
   app.use(express.static(`${cwd}/dist`, { etag: false }));
-  app.listen(3000, '0.0.0.0');
+  app.listen(port, '0.0.0.0');
 
   consola.info(`Execute first build...`);
   await build();
   consola.success(`success!`);
-  consola.info('Preview Server: http://localhost:3000');
+  consola.info('Preview Server: http://localhost:port');
   consola.info('Polling Server: http://localhost:10020');
   chokidar.watch(['./src']).on('all', async (event, filepath) => {
     try {

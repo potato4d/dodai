@@ -27,17 +27,17 @@
   },
   "homepage": "https://github.com/potato4d/dodai#readme",
   "dependencies": {
+    "@types/consola": "^2.2.5",
     "commander": "^9.4.1",
+    "consola": "^2.15.3",
     "dayjs": "^1.11.7",
     "express": "^4.18.2",
     "fs-extra": "^11.1.0",
+    "get-port-please": "^3.0.1",
     "glob": "^8.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "rome": "^0.10.1",
-    "tailwindcss": "^3.2.4",
-    "consola": "^2.15.3",
-    "@types/consola": "^2.2.5"
+    "rome": "^0.10.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.15",
