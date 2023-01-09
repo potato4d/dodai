@@ -16,30 +16,31 @@ const ce = console.error;
 const cl = console.log;
 const cw = console.warn;
 
-console.error = (v) => {
+const checkOrLogging = (v: any, callback: Function) => {
   if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
     return;
   }
-  ce(v);
-};
+  callback(v);
+}
 
-console.log = (v) => {
-  if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
-    return;
-  }
-  cl(v);
-};
-console.warn = (v) => {
-  if (v.includes('reactjs.org') || v.includes('1 element as children.')) {
-    return;
-  }
-  cw(v);
-};
+console.error = (v) => checkOrLogging(v, ce);
+console.log = (v) => checkOrLogging(v, cl);
+console.warn = (v) => checkOrLogging(v, cw);
 
 export async function build(isDevServer?: boolean) {
   const cwd = process.cwd();
   const rootDir = `${cwd}/.dodai-build`;
   fsx.copySync(`${cwd}/src/static/`, `${cwd}/dist/static/`);
+  try{
+    const rootFiles = await glob(`${cwd}/dist/static/root/**.*`)
+    await Promise.all(
+      rootFiles.map(async (rootFile) => {
+        await fsx.copyFile(rootFile, `${cwd}/dist/${rootFile.split('/')[rootFile.split('/').length-1]}`)
+      })
+    )
+  } catch(e) {
+    console.log(e)
+  }
   const p = await ts.createProgram(await glob(`${cwd}/src/**/*.tsx`), {
     target: 3,
     jsx: 2,
@@ -99,6 +100,7 @@ export async function build(isDevServer?: boolean) {
         if (require.cache[require.resolve(metaDataPath)]) {
           delete require.cache[require.resolve(metaDataPath)];
         }
+
         const metaData: any[] = require(metaDataPath).data;
         await Promise.all(
           metaData.map(async (single) => {
@@ -131,7 +133,6 @@ export async function build(isDevServer?: boolean) {
             await fs.writeFile(`${cwd}/dist${single.url}/index.html`, html, {
               encoding: 'utf-8',
             });
-            return;
           }),
         );
       } catch (e) {
