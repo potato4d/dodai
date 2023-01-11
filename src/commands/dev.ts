@@ -34,7 +34,7 @@ export async function dev() {
   consola.info(`Execute first build...`);
   await build();
   consola.success(`success!`);
-  consola.info('Preview Server: http://localhost:port');
+  consola.info(`Preview Server: http://localhost:${port}`);
   consola.info('Polling Server: http://localhost:10020');
   chokidar.watch(['./src']).on('all', async (event, filepath) => {
     try {
