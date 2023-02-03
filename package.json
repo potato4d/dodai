@@ -1,6 +1,6 @@
 {
   "name": "@potato4d/dodai",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "description": "static website generator",
   "main": "index.js",
   "scripts": {
@@ -37,10 +37,10 @@
     "get-port-please": "^3.0.1",
     "glob": "^8.0.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "rome": "^0.10.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "rome": "^0.10.1",
     "@types/express": "^4.17.15",
     "@types/fs-extra": "^9.0.13",
     "@types/glob": "^8.0.0",
