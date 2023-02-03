@@ -9,7 +9,7 @@ import * as ts from 'typescript';
 import * as fsx from 'fs-extra';
 const consola = require('consola');
 
-const htmlHeader = `<!DOCTYPE html>\n`;
+const docType = `<!DOCTYPE html>\n`;
 
 // どこかで治す
 const ce = console.error;
@@ -68,7 +68,7 @@ export async function build(isDevServer?: boolean) {
         if (!pagePath.includes('[')) {
           const { Head, Page } = require(pagePath);
           const html =
-            htmlHeader +
+            docType +
             Renderer.renderToString(
               React.createElement(
                 Layout,
@@ -105,24 +105,20 @@ export async function build(isDevServer?: boolean) {
         await Promise.all(
           metaData.map(async (single) => {
             const { Head, Page } = require(pagePath);
+            const head = Head ? React.createElement(Head, {
+                url: single.url,
+                data: single.data,
+              })
+            : null;
+            const page = React.createElement(Page, {
+              url: single.url,
+              data: single.data,
+            })
+
             const html =
-              htmlHeader +
+              docType +
               Renderer.renderToStaticMarkup(
-                React.createElement(
-                  Layout,
-                  {
-                    head: Head
-                      ? React.createElement(Head, {
-                          url: single.url,
-                          data: single.data,
-                        })
-                      : null,
-                  },
-                  React.createElement(Page, {
-                    url: single.url,
-                    data: single.data,
-                  }),
-                ),
+                React.createElement(Layout, { head }, page,)
               );
             await fs.mkdir(
               path.dirname(`${cwd}/dist${single.url}/index.html`),
