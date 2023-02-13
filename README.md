@@ -1,4 +1,8 @@
-# @potato4d/dodai
+<p align="center">
+  <img width="80" src="https://i.gyazo.com/254eeef7553c4f0d7955822270195540.png" />
+</p>
+
+<h1 align="center"> @potato4d/dodai </h1>
 
 Static Site Generator
 
