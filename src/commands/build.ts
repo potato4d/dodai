@@ -1,12 +1,12 @@
-import * as React from 'react';
-import * as Renderer from 'react-dom/server';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as _glob from 'glob';
 import { promisify } from 'util';
 const glob = promisify(_glob);
 import * as ts from 'typescript';
-import * as fsx from 'fs-extra';
+import { copySync, copyFile } from 'fs-extra';
 const consola = require('consola');
 
 const docType = `<!DOCTYPE html>\n`;
@@ -21,7 +21,7 @@ const checkOrLogging = (v: any, callback: Function) => {
     return;
   }
   callback(v);
-}
+};
 
 console.error = (v) => checkOrLogging(v, ce);
 console.log = (v) => checkOrLogging(v, cl);
@@ -30,16 +30,19 @@ console.warn = (v) => checkOrLogging(v, cw);
 export async function build(isDevServer?: boolean) {
   const cwd = process.cwd();
   const rootDir = `${cwd}/.dodai-build`;
-  fsx.copySync(`${cwd}/src/static/`, `${cwd}/dist/static/`);
-  try{
-    const rootFiles = await glob(`${cwd}/dist/static/root/**.*`)
+  copySync(`${cwd}/src/static/`, `${cwd}/dist/static/`);
+  try {
+    const rootFiles = await glob(`${cwd}/dist/static/root/**.*`);
     await Promise.all(
-      rootFiles.map(async (rootFile) => {
-        await fsx.copyFile(rootFile, `${cwd}/dist/${rootFile.split('/')[rootFile.split('/').length-1]}`)
-      })
-    )
-  } catch(e) {
-    console.log(e)
+      rootFiles.map((rootFile) =>
+        copyFile(
+          rootFile,
+          `${cwd}/dist/${rootFile.split('/')[rootFile.split('/').length - 1]}`,
+        ),
+      ),
+    );
+  } catch (e) {
+    console.log(e);
   }
   const p = await ts.createProgram(await glob(`${cwd}/src/**/*.tsx`), {
     target: 3,
@@ -50,47 +53,35 @@ export async function build(isDevServer?: boolean) {
     outDir: './.dodai-build/',
   });
   await p.emit();
-  const pathes = await glob(`${rootDir}/pages/**/*.js`);
+  const paths = await glob(`${rootDir}/pages/**/*.js`);
   await Promise.all(
-    pathes.map(async (pagePath) => {
+    paths.map(async (pagePath) => {
       try {
         Object.entries(require.cache)
-          .filter(([k]) => {
-            return k.includes(cwd);
-          })
+          .filter(([k]) => k.includes(cwd))
           .map(([k]) => {
             if (require.cache[require.resolve(k)]) {
               delete require.cache[require.resolve(k)];
             }
           });
-        const Layout = require(`${rootDir}/layouts/default`).Layout;
+        const { Layout } = require(`${rootDir}/layouts/default`);
 
         if (!pagePath.includes('[')) {
           const { Head, Page } = require(pagePath);
           const html =
             docType +
-            Renderer.renderToString(
-              React.createElement(
+            renderToStaticMarkup(
+              createElement(
                 Layout,
-                { head: Head ? React.createElement(Head, null) : null },
-                React.createElement(Page, null),
+                { head: Head ? createElement(Head, null) : null },
+                createElement(Page, null),
               ),
             );
-          await fs.mkdir(
-            path.dirname(
-              `${cwd}/dist/${pagePath
-                .replace(`${rootDir}/pages/`, '')
-                .replace('.js', '.html')}`,
-            ),
-            { recursive: true },
-          );
-          await fs.writeFile(
-            `${cwd}/dist/${pagePath
-              .replace(`${rootDir}/pages/`, '')
-              .replace('.js', '.html')}`,
-            html,
-            { encoding: 'utf-8' },
-          );
+          const fileName = `${cwd}/dist/${pagePath
+            .replace(`${rootDir}/pages/`, '')
+            .replace('.js', '.html')}`;
+          await fs.mkdir(path.dirname(fileName), { recursive: true });
+          await fs.writeFile(fileName, html, { encoding: 'utf-8' });
           return html;
         }
 
@@ -105,28 +96,21 @@ export async function build(isDevServer?: boolean) {
         await Promise.all(
           metaData.map(async (single) => {
             const { Head, Page } = require(pagePath);
-            const head = Head ? React.createElement(Head, {
-                url: single.url,
-                data: single.data,
-              })
-            : null;
-            const page = React.createElement(Page, {
+            const meta = {
               url: single.url,
               data: single.data,
-            })
+            };
+            const head = Head ? createElement(Head, meta) : null;
+            const page = createElement(Page, meta);
 
             const html =
               docType +
-              Renderer.renderToStaticMarkup(
-                React.createElement(Layout, { head }, page,)
-              );
-            await fs.mkdir(
-              path.dirname(`${cwd}/dist${single.url}/index.html`),
-              {
-                recursive: true,
-              },
-            );
-            await fs.writeFile(`${cwd}/dist${single.url}/index.html`, html, {
+              renderToStaticMarkup(createElement(Layout, { head }, page));
+            const indexFileName = `${cwd}/dist${single.url}/index.html`;
+            await fs.mkdir(path.dirname(indexFileName), {
+              recursive: true,
+            });
+            await fs.writeFile(indexFileName, html, {
               encoding: 'utf-8',
             });
           }),

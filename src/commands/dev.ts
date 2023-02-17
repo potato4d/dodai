@@ -1,6 +1,5 @@
 import * as http from 'http';
 import * as chokidar from 'chokidar';
-import * as dayjs from 'dayjs';
 import { build } from './build';
 import * as express from 'express';
 import { getPort, isSafePort } from 'get-port-please';
@@ -8,13 +7,16 @@ const consola = require('consola');
 
 let clients: http.ServerResponse[] = [];
 
-const PORT = (process.env.PORT && isSafePort(~~(process.env.PORT))) ? ~~(process.env.PORT) : 3000;
+const PORT =
+  process.env.PORT && isSafePort(~~process.env.PORT)
+    ? ~~process.env.PORT
+    : 3000;
 
 export async function dev() {
   const cwd = process.cwd();
   const port = await getPort({
-    port: PORT
-  })
+    port: PORT,
+  });
 
   const app = express();
 
@@ -48,9 +50,9 @@ export async function dev() {
           consola.debug(`clear cache: ${require.resolve(rp)}`);
         }
       }
-      consola.info(`Update ${dayjs().format()}`);
+      consola.info(`Update ${new Date().toISOString()}`);
       await build();
-    } catch(e) {
+    } catch (e) {
       consola.error(e);
     }
     clients.forEach((client) => {
