@@ -30,6 +30,12 @@ export async function dev() {
     })
     .listen(10020);
 
+  app.use((req, res, next) => {
+    const now = new Date();
+    console.log(`[${now.getHours().toString().padEnd(2, '0')}:${now.getMinutes().toString().padEnd(2, '0')}:${now.getSeconds().toString().padEnd(2, '0')}] ${req.path}`)
+    next();
+  })
+
   app.use(express.static(`${cwd}/dist`, { etag: false }));
   app.listen(port, '0.0.0.0');
 
