@@ -1,6 +1,6 @@
 import * as http from 'http';
 import * as chokidar from 'chokidar';
-import { build } from './build';
+import { build } from './build.js';
 import * as express from 'express';
 import { getPort, isSafePort } from 'get-port-please';
 const consola = require('consola');
