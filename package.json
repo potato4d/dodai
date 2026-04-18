@@ -2,10 +2,38 @@
   "name": "@potato4d/dodai",
   "version": "0.6.0",
   "description": "static website generator",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/esm/hotreload.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./hotreload": {
+      "import": {
+        "types": "./dist/esm/hotreload.d.ts",
+        "default": "./dist/esm/hotreload.js"
+      },
+      "require": {
+        "types": "./dist/hotreload.d.ts",
+        "default": "./dist/hotreload.js"
+      }
+    },
+    "./dist/hotreload": {
+      "import": "./dist/esm/hotreload.js",
+      "require": "./dist/hotreload.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "npm run test",
-    "build": "tsc;chmod +x ./dist/index.js"
+    "build": "tsc && tsc -p tsconfig.esm.json && node ./scripts/postbuild.js"
   },
   "repository": {
     "type": "git",
