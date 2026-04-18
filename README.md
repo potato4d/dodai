@@ -154,7 +154,7 @@ $ dodai dev
 
 ```tsx
 import * as React from 'react';
-import { HotReload } from '@potato4d/dodai/dist/hotreload';
+import { HotReload } from '@potato4d/dodai/hotreload';
 
 type LayoutProps = { head: JSX.Element | null; children?: React.ReactNode };
 

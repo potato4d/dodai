@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { build } from './commands/build';
-import { dev } from './commands/dev';
-import { init } from './commands/init';
+import { build } from './commands/build.js';
+import { dev } from './commands/dev.js';
+import { init } from './commands/init.js';
 
 program.version('0.1.0', '-v, --version');
 
