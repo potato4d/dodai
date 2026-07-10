@@ -4,7 +4,7 @@
   "description": "static website generator",
   "main": "./dist/cjs/index.js",
   "scripts": {
-    "test": "npm run test",
+    "test": "pnpm run test",
     "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({ type: 'module' }, null, 2) + '\\n')\" && chmod +x ./dist/cjs/index.js"
   },
   "repository": {
@@ -20,6 +20,7 @@
   "bin": "./dist/cjs/index.js",
   "author": "potato4d (Takuma HANATANI)",
   "license": "MIT",
+  "packageManager": "pnpm@11.10.0",
   "bugs": {
     "url": "https://github.com/potato4d/dodai/issues"
   },
