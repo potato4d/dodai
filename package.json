@@ -1,15 +1,23 @@
 {
   "name": "@potato4d/dodai",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "static website generator",
   "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
-    "test": "pnpm run test",
-    "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({ type: 'module' }, null, 2) + '\\n')\" && chmod +x ./dist/cjs/index.js"
+    "test": "pnpm run build",
+    "build": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({ type: 'module' }, null, 2) + '\\n')\" && chmod +x ./dist/cjs/cli.js",
+    "prepack": "pnpm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/potato4d/dodai.git"
+    "url": "git+https://github.com/potato4d/dodai.git"
   },
   "keywords": [
     "static",
@@ -17,7 +25,9 @@
     "build",
     "static-site-generator"
   ],
-  "bin": "./dist/cjs/index.js",
+  "bin": {
+    "dodai": "dist/cjs/cli.js"
+  },
   "author": "potato4d (Takuma HANATANI)",
   "license": "MIT",
   "packageManager": "pnpm@11.10.0",
@@ -26,7 +36,6 @@
   },
   "homepage": "https://github.com/potato4d/dodai#readme",
   "dependencies": {
-    "@types/consola": "^2.2.5",
     "chokidar": "^3.5.3",
     "commander": "^9.4.1",
     "consola": "^2.15.3",
@@ -35,7 +44,8 @@
     "get-port-please": "^3.0.1",
     "glob": "^8.0.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "typescript": "^4.9.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.15",
@@ -43,13 +53,8 @@
     "@types/glob": "^8.0.0",
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.10",
-    "rome": "^0.10.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "@types/react-dom": "^18.0.10"
   },
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -61,5 +66,9 @@
       "require": "./dist/cjs/hotreload.js",
       "import": "./dist/esm/hotreload.js"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

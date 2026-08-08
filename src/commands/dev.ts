@@ -1,9 +1,10 @@
 import * as http from 'http';
 import * as chokidar from 'chokidar';
 import { build } from './build.js';
-import * as express from 'express';
+import { createRequire } from 'module';
+import express from 'express';
 import { getPort, isSafePort } from 'get-port-please';
-const consola = require('consola');
+import consola from 'consola';
 
 let clients: http.ServerResponse[] = [];
 
@@ -14,6 +15,7 @@ const PORT =
 
 export async function dev() {
   const cwd = process.cwd();
+  const runtimeRequire = createRequire(`${cwd}/package.json`);
   const port = await getPort({
     port: PORT,
   });
@@ -51,9 +53,9 @@ export async function dev() {
       }
       if (filepath.includes('.')) {
         const rp = `${cwd}/${filepath}`;
-        if (require.cache[require.resolve(rp)]) {
-          delete require.cache[require.resolve(rp)];
-          consola.debug(`clear cache: ${require.resolve(rp)}`);
+        if (runtimeRequire.cache[runtimeRequire.resolve(rp)]) {
+          delete runtimeRequire.cache[runtimeRequire.resolve(rp)];
+          consola.debug(`clear cache: ${runtimeRequire.resolve(rp)}`);
         }
       }
       consola.info(`Update ${new Date().toISOString()}`);

@@ -4,6 +4,7 @@
     "lib": ["ESNext", "DOM"],
     "jsx": "react",
     "moduleResolution": "Node",
+    "esModuleInterop": true,
     "types": ["@types/node"],
     "resolveJsonModule": true,
     "isolatedModules": true,

@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-const consola = require('consola');
+import consola from 'consola';
 
 const execPromise = promisify(exec);
 
@@ -153,7 +153,7 @@ export async function init() {
   );
   consola.log('install packages...');
   await execPromise(
-    'npm i -D typescript ts-node @types/node react @types/react react-dom',
+    'npm i -D typescript@^4.9.4 ts-node@^10.9.1 @types/node@^18 react@^18.2.0 @types/react@^18 react-dom@^18.2.0 @types/react-dom@^18',
   );
   consola.log('initialize typescript project...');
 }

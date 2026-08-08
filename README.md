@@ -175,6 +175,21 @@ export const Layout: React.FC<LayoutProps> = ({ head, children }) => {
 }
 ```
 
-## LICENCE
+## Development
 
-MIT
+```bash
+$ pnpm install --frozen-lockfile
+$ pnpm test
+```
+
+The test command builds the CommonJS and ESM package outputs.
+
+## Releasing
+
+Releases are published from GitHub Actions with npm Trusted Publishing. See the
+[release runbook](https://github.com/potato4d/dodai/blob/master/docs/releasing.md) for the automated gates and the one-time
+npm configuration.
+
+## License
+
+[MIT](./LICENSE)

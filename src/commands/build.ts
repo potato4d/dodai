@@ -2,12 +2,15 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import * as _glob from 'glob';
+import globCallback from 'glob';
+import { createRequire } from 'module';
 import { promisify } from 'util';
-const glob = promisify(_glob);
+const glob = promisify(globCallback);
 import * as ts from 'typescript';
-import { copySync, copyFile } from 'fs-extra';
-const consola = require('consola');
+import fsExtra from 'fs-extra';
+import consola from 'consola';
+
+const { copyFile, copySync } = fsExtra;
 
 const docType = `<!DOCTYPE html>\n`;
 
@@ -29,6 +32,7 @@ console.warn = (v) => checkOrLogging(v, cw);
 
 export async function build(isDevServer?: boolean) {
   const cwd = process.cwd();
+  const runtimeRequire = createRequire(path.join(cwd, 'package.json'));
   const rootDir = `${cwd}/.dodai-build`;
   copySync(`${cwd}/src/static/`, `${cwd}/dist/static/`);
   try {
@@ -57,17 +61,17 @@ export async function build(isDevServer?: boolean) {
   await Promise.all(
     paths.map(async (pagePath) => {
       try {
-        Object.entries(require.cache)
+        Object.entries(runtimeRequire.cache)
           .filter(([k]) => k.includes(cwd))
           .map(([k]) => {
-            if (require.cache[require.resolve(k)]) {
-              delete require.cache[require.resolve(k)];
+            if (runtimeRequire.cache[runtimeRequire.resolve(k)]) {
+              delete runtimeRequire.cache[runtimeRequire.resolve(k)];
             }
           });
-        const { Layout } = require(`${rootDir}/layouts/default`);
+        const { Layout } = runtimeRequire(`${rootDir}/layouts/default`);
 
         if (!pagePath.includes('[')) {
-          const { Head, Page } = require(pagePath);
+          const { Head, Page } = runtimeRequire(pagePath);
           const html =
             docType +
             renderToStaticMarkup(
@@ -88,14 +92,14 @@ export async function build(isDevServer?: boolean) {
         // `pages/detail/[area]/[slug]` 形式
         const userPath = pagePath.split('pages/')[1];
         const metaDataPath = `${rootDir}/data/${userPath}`;
-        if (require.cache[require.resolve(metaDataPath)]) {
-          delete require.cache[require.resolve(metaDataPath)];
+        if (runtimeRequire.cache[runtimeRequire.resolve(metaDataPath)]) {
+          delete runtimeRequire.cache[runtimeRequire.resolve(metaDataPath)];
         }
 
-        const metaData: any[] = require(metaDataPath).data;
+        const metaData: any[] = runtimeRequire(metaDataPath).data;
         await Promise.all(
           metaData.map(async (single) => {
-            const { Head, Page } = require(pagePath);
+            const { Head, Page } = runtimeRequire(pagePath);
             const meta = {
               url: single.url,
               data: single.data,

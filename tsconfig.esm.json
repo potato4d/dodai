@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "es2020",
     "outDir": "./dist/esm",
-    "declaration": false,
-    "esModuleInterop": false
-  }
+    "declaration": false
+  },
+  "exclude": ["src/cli.ts"]
 }
