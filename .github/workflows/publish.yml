@@ -38,6 +38,8 @@ jobs:
       - name: Verify release tag
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: test "$RELEASE_TAG" = "v$(node -p "require('./package.json').version")"
+        run: |
+          PACKAGE_VERSION=$(node --input-type=module -e "import { readFileSync } from 'node:fs'; process.stdout.write(JSON.parse(readFileSync('package.json', 'utf8')).version)")
+          test "$RELEASE_TAG" = "v$PACKAGE_VERSION"
       - run: pnpm test
       - run: npm publish --access public
