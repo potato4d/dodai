@@ -20,11 +20,20 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24.15.0
+          package-manager-cache: false
+
       - uses: pnpm/setup@4700d737c3d7a2e7199f3d42a920f0bf7f34e411 # v2.0.1
         with:
-          runtime: node@24.15.0
           install: false
 
+      - name: Verify toolchain
+        run: |
+          node --version
+          npm --version
+          test "$(npm --version | cut -d. -f1)" -ge 11
       - run: pnpm install --frozen-lockfile
       - name: Verify release tag
         env:
