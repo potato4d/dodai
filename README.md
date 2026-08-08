@@ -19,6 +19,28 @@ $ dodai init
 $ dodai init
 ```
 
+## Module Formats
+
+`@potato4d/dodai` provides native ESM and CommonJS entry points. Node.js and
+compatible bundlers select the appropriate build through the package `exports`
+map.
+
+```ts
+// ESM
+import { build, dev, init } from '@potato4d/dodai';
+import { HotReload } from '@potato4d/dodai/hotreload';
+```
+
+```js
+// CommonJS
+const { build, dev, init } = require('@potato4d/dodai');
+const { HotReload } = require('@potato4d/dodai/hotreload');
+```
+
+Use these public package entry points instead of importing files from `dist`.
+Existing CommonJS consumers do not need to migrate, and the `dodai` CLI
+continues to use the CommonJS build.
+
 ## How to Use
 
 ### Layout
@@ -182,7 +204,7 @@ $ pnpm install --frozen-lockfile
 $ pnpm test
 ```
 
-The test command builds the CommonJS and ESM package outputs.
+The test command builds the CommonJS and native ESM package outputs.
 
 ## Releasing
 
