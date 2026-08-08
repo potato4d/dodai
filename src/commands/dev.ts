@@ -1,71 +1,112 @@
-import * as http from 'http';
-import * as chokidar from 'chokidar';
+import * as http from 'node:http';
+import chokidar from 'chokidar';
 import { build } from './build.js';
-import { createRequire } from 'module';
 import express from 'express';
 import { getPort, isSafePort } from 'get-port-please';
-import consola from 'consola';
+import consolaModule, { type Consola } from 'consola';
 
 let clients: http.ServerResponse[] = [];
+const consola = consolaModule as unknown as Consola;
 
 const PORT =
   process.env.PORT && isSafePort(~~process.env.PORT)
     ? ~~process.env.PORT
     : 3000;
+const RELOAD_PORT =
+  process.env.DODAI_RELOAD_PORT &&
+  isSafePort(~~process.env.DODAI_RELOAD_PORT)
+    ? ~~process.env.DODAI_RELOAD_PORT
+    : 10020;
+
+const listen = (server: http.Server, port: number, host?: string) =>
+  new Promise<void>((resolve, reject) => {
+    const onError = (error: Error) => {
+      server.off('listening', onListening);
+      reject(error);
+    };
+    const onListening = () => {
+      server.off('error', onError);
+      resolve();
+    };
+    server.once('error', onError);
+    server.once('listening', onListening);
+    if (host) {
+      server.listen(port, host);
+    } else {
+      server.listen(port);
+    }
+  });
 
 export async function dev() {
   const cwd = process.cwd();
-  const runtimeRequire = createRequire(`${cwd}/package.json`);
   const port = await getPort({
     port: PORT,
   });
 
-  const app = express();
-
-  http
-    .createServer((_, res) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Request-Method', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-      res.setHeader('Access-Control-Allow-Headers', '*');
-      clients.push(res);
-    })
-    .listen(10020);
-
-  app.use((req, res, next) => {
-    const now = new Date();
-    console.log(`[${now.getHours().toString().padEnd(2, '0')}:${now.getMinutes().toString().padEnd(2, '0')}:${now.getSeconds().toString().padEnd(2, '0')}] ${req.path}`)
-    next();
-  })
-
-  app.use(express.static(`${cwd}/dist`, { etag: false }));
-  app.listen(port, '0.0.0.0');
-
   consola.info(`Execute first build...`);
   await build();
   consola.success(`success!`);
-  consola.info(`Preview Server: http://localhost:${port}`);
-  consola.info('Polling Server: http://localhost:10020');
-  chokidar.watch(['./src']).on('all', async (event, filepath) => {
-    try {
-      if (event === 'add' || event === 'addDir') {
-        return;
-      }
-      if (filepath.includes('.')) {
-        const rp = `${cwd}/${filepath}`;
-        if (runtimeRequire.cache[runtimeRequire.resolve(rp)]) {
-          delete runtimeRequire.cache[runtimeRequire.resolve(rp)];
-          consola.debug(`clear cache: ${runtimeRequire.resolve(rp)}`);
-        }
-      }
-      consola.info(`Update ${new Date().toISOString()}`);
-      await build();
-    } catch (e) {
-      consola.error(e);
-    }
-    clients.forEach((client) => {
-      client.end();
-    });
-    clients = [];
+
+  const app = express();
+
+  const reloadServer = http.createServer((_, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    clients.push(res);
   });
+
+  app.use((req, res, next) => {
+    const now = new Date();
+    console.log(
+      `[${now.getHours().toString().padEnd(2, '0')}:${now
+        .getMinutes()
+        .toString()
+        .padEnd(2, '0')}:${now
+        .getSeconds()
+        .toString()
+        .padEnd(2, '0')}] ${req.path}`,
+    );
+    next();
+  });
+
+  app.use(express.static(`${cwd}/dist`, { etag: false }));
+  const previewServer = http.createServer(app);
+  await listen(reloadServer, RELOAD_PORT);
+  try {
+    await listen(previewServer, port, '0.0.0.0');
+  } catch (error) {
+    reloadServer.close();
+    throw error;
+  }
+
+  let rebuildQueue = Promise.resolve();
+  const watcher = chokidar.watch(['./src'], { ignoreInitial: true });
+  watcher.on('all', () => {
+    rebuildQueue = rebuildQueue
+      .then(async () => {
+        consola.info(`Update ${new Date().toISOString()}`);
+        await build(true);
+        clients.forEach((client) => {
+          client.end();
+        });
+        clients = [];
+      })
+      .catch((error) => {
+        consola.error(error);
+      });
+  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      watcher.once('ready', resolve);
+      watcher.once('error', reject);
+    });
+  } catch (error) {
+    reloadServer.close();
+    previewServer.close();
+    throw error;
+  }
+  consola.info(`Preview Server: http://localhost:${port}`);
+  consola.info(`Polling Server: http://localhost:${RELOAD_PORT}`);
 }

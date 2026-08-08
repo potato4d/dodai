@@ -19,27 +19,28 @@ $ dodai init
 $ dodai init
 ```
 
-## Module Formats
+## Native ESM
 
-`@potato4d/dodai` provides native ESM and CommonJS entry points. Node.js and
-compatible bundlers select the appropriate build through the package `exports`
-map.
+As of 0.8.0, `@potato4d/dodai` is ESM-only. The library, CLI, and temporary
+site modules used during builds all run as native ESM.
 
 ```ts
-// ESM
 import { build, dev, init } from '@potato4d/dodai';
 import { HotReload } from '@potato4d/dodai/hotreload';
 ```
 
-```js
-// CommonJS
-const { build, dev, init } = require('@potato4d/dodai');
-const { HotReload } = require('@potato4d/dodai/hotreload');
-```
-
 Use these public package entry points instead of importing files from `dist`.
-Existing CommonJS consumers do not need to migrate, and the `dodai` CLI
-continues to use the CommonJS build.
+
+### Migrating from 0.7.x
+
+- Replace CommonJS `require()` calls with ESM `import` statements.
+- Set `"type": "module"` in the site project's `package.json`.
+- Use `"module": "NodeNext"` and `"moduleResolution": "NodeNext"` in
+  `tsconfig.json`.
+- Include the emitted `.js` extension in local TypeScript imports, for example
+  `import { value } from './value.js'`.
+
+`dodai init` applies these ESM settings for new projects.
 
 ## How to Use
 
@@ -148,7 +149,7 @@ export const data: Entry[] = [
     url: '/entry/1',
     data: {
       title: 'first entry',
-      date: new Date(),
+      date: new Date().toISOString(),
       body: '<p>hello</p>'
     }
   }
@@ -204,7 +205,8 @@ $ pnpm install --frozen-lockfile
 $ pnpm test
 ```
 
-The test command builds the CommonJS and native ESM package outputs.
+The test command builds the native ESM package and runs its package, CLI, site
+generation, dynamic route, and module-cache integration checks.
 
 ## Releasing
 

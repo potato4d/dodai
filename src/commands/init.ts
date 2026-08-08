@@ -1,9 +1,10 @@
-import * as fs from 'fs/promises';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import consola from 'consola';
+import * as fs from 'node:fs/promises';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import consolaModule, { type Consola } from 'consola';
 
 const execPromise = promisify(exec);
+const consola = consolaModule as unknown as Consola;
 
 type Template = {
   path: string;
@@ -32,7 +33,7 @@ export const Layout: React.FC<LayoutProps> = ({ head, children }) => {
             <script lang="text/javascript" dangerouslySetInnerHTML={{
               __html: \`
               async function subscribe() {
-                fetch('http://localhost:10020')
+                fetch('http://localhost:\${process.env.DODAI_RELOAD_PORT ?? '10020'}')
                 .then(() => {
                   location.reload();
                 })
@@ -106,13 +107,14 @@ export const Page: React.FC<Item> = ({ url, data }) => {
     path: 'tsconfig.json',
     body: `{
   "compilerOptions": {
-    "target": "es2016",
+    "target": "ES2022",
     "lib": [
       "ESNext",
       "DOM"
     ],
     "jsx": "react",
-    "module": "commonjs",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": [
       "@types/node"
     ],
@@ -154,6 +156,15 @@ export async function init() {
   consola.log('install packages...');
   await execPromise(
     'npm i -D typescript@^4.9.4 ts-node@^10.9.1 @types/node@^18 react@^18.2.0 @types/react@^18 react-dom@^18.2.0 @types/react-dom@^18',
+  );
+  const packageJsonPath = `${cwd}/package.json`;
+  const packageJson = JSON.parse(
+    await fs.readFile(packageJsonPath, { encoding: 'utf8' }),
+  ) as Record<string, unknown>;
+  await fs.writeFile(
+    packageJsonPath,
+    `${JSON.stringify({ ...packageJson, type: 'module' }, null, 2)}\n`,
+    { encoding: 'utf8' },
   );
   consola.log('initialize typescript project...');
 }

@@ -1,7 +1,9 @@
 import * as React from 'react';
 
+const reloadPort = process.env.DODAI_RELOAD_PORT ?? '10020';
+
 const script = `async function subscribe() {
-  fetch('http://localhost:10020')
+  fetch('http://localhost:${reloadPort}')
   .then(() => {
     location.reload();
   })
